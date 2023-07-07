@@ -284,10 +284,10 @@ async function runCalcsWithAllCustom(){
 		needsChanging.trigger('change');
 		performCalculations();
 		damageResults[0].forEach((ele) =>
-			{
-				if(ele.damage)
-						output.text(output.text() + ele.fullDesc(notation,false) + "\n\n")
-			});
+		    {
+			if(ele.damage)
+			    output.text(output.text() + ele.fullDesc(notation,false) + "\n\n")
+		    });
 	});
 	needsChanging.val(currentValue.text);
 	needsChanging.trigger('change');

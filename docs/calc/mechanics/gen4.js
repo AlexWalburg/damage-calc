@@ -30,6 +30,7 @@ var items_1 = require("../items");
 var result_1 = require("../result");
 var util_1 = require("./util");
 function calculateDPP(gen, attacker, defender, move, field) {
+    var _a;
     (0, util_1.checkAirLock)(attacker, field);
     (0, util_1.checkAirLock)(defender, field);
     (0, util_1.checkForecast)(attacker, field.weather);
@@ -101,9 +102,37 @@ function calculateDPP(gen, attacker, defender, move, field) {
         desc.attackerAbility = attacker.ability;
     }
     var isGhostRevealed = attacker.hasAbility('Scrappy') || field.defenderSide.isForesight;
-    var type1Effectiveness = (0, util_1.getMoveEffectiveness)(gen, move, defender.types[0], isGhostRevealed, field.isGravity);
-    var type2Effectiveness = defender.types[1]
-        ? (0, util_1.getMoveEffectiveness)(gen, move, defender.types[1], isGhostRevealed, field.isGravity)
+    var typeEffectivenessPrecedenceRules = [
+        'Normal',
+        'Fire',
+        'Water',
+        'Electric',
+        'Grass',
+        'Ice',
+        'Fighting',
+        'Poison',
+        'Ground',
+        'Flying',
+        'Psychic',
+        'Bug',
+        'Rock',
+        'Ghost',
+        'Dragon',
+        'Dark',
+        'Steel',
+    ];
+    var firstDefenderType = defender.types[0];
+    var secondDefenderType = defender.types[1];
+    if (secondDefenderType && firstDefenderType !== secondDefenderType) {
+        var firstTypePrecedence = typeEffectivenessPrecedenceRules.indexOf(firstDefenderType);
+        var secondTypePrecedence = typeEffectivenessPrecedenceRules.indexOf(secondDefenderType);
+        if (firstTypePrecedence > secondTypePrecedence) {
+            _a = __read([secondDefenderType, firstDefenderType], 2), firstDefenderType = _a[0], secondDefenderType = _a[1];
+        }
+    }
+    var type1Effectiveness = (0, util_1.getMoveEffectiveness)(gen, move, firstDefenderType, isGhostRevealed, field.isGravity);
+    var type2Effectiveness = secondDefenderType
+        ? (0, util_1.getMoveEffectiveness)(gen, move, secondDefenderType, isGhostRevealed, field.isGravity)
         : 1;
     var typeEffectiveness = type1Effectiveness * type2Effectiveness;
     if (typeEffectiveness === 0 && move.hasType('Ground') && defender.hasItem('Iron Ball')) {
@@ -194,6 +223,12 @@ function calculateDPP(gen, attacker, defender, move, field) {
                 desc.moveBP = basePower;
             }
             break;
+        case 'Nature Power':
+            move.category = 'Special';
+            move.secondaries = true;
+            basePower = 80;
+            desc.moveName = 'Tri Attack';
+            break;
         case 'Crush Grip':
         case 'Wring Out':
             basePower = Math.floor((defender.curHP() * 120) / defender.maxHP()) + 1;
@@ -282,6 +317,11 @@ function calculateDPP(gen, attacker, defender, move, field) {
         desc.attackerAbility = attacker.ability;
         desc.weather = field.weather;
     }
+    else if (field.attackerSide.isFlowerGift && field.hasWeather('Sun') && isPhysical) {
+        attack = Math.floor(attack * 1.5);
+        desc.weather = field.weather;
+        desc.isFlowerGiftAttacker = true;
+    }
     else if ((isPhysical &&
         (attacker.hasAbility('Hustle') || (attacker.hasAbility('Guts') && attacker.status)) ||
         (!isPhysical && attacker.abilityOn && attacker.hasAbility('Plus', 'Minus')))) {
@@ -332,6 +372,11 @@ function calculateDPP(gen, attacker, defender, move, field) {
         defense = Math.floor(defense * 1.5);
         desc.defenderAbility = defender.ability;
         desc.weather = field.weather;
+    }
+    else if (field.defenderSide.isFlowerGift && field.hasWeather('Sun') && !isPhysical) {
+        defense = Math.floor(defense * 1.5);
+        desc.weather = field.weather;
+        desc.isFlowerGiftDefender = true;
     }
     if (defender.hasItem('Soul Dew') && defender.named('Latios', 'Latias') && !isPhysical) {
         defense = Math.floor(defense * 1.5);
