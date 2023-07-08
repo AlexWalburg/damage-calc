@@ -274,7 +274,7 @@ async function runCalcsWithAllCustom(){
 	let pokeID = $(this).parent().parent().prop("id");
 	let filtered_list = getSetOptions().filter((a) => a.isCustom===true);
 	let needsChanging = $("#" + pokeID + " .set-selector");
-	let output = $('.export-team-text');
+	let output = $('.custom-set-export-textbox');
 	let mainResult = $('.left-result');
 	let currentValue = needsChanging.select2('data');
 	console.log(currentValue);

@@ -203,6 +203,16 @@ th {
     float: left;
     display: inline-block; /* required for honkaculate to work */
 }
+
+.custom-set-export-textbox {
+    width: 100%;
+    overflow-y: auto;
+}
+
+.custom-set-export {
+    clear: both; /* Place on new line */
+    width: 100%;
+}
 .poke-info {
     width: 30em;
 }
