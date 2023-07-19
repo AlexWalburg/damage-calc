@@ -273,21 +273,29 @@ function updateDex(customsets) {
 async function runCalcsWithAllCustom(){
 	let pokeID = $(this).parent().parent().prop("id");
 	let filtered_list = getSetOptions().filter((a) => a.isCustom===true);
+	console.log("Filtered list len: " + filtered_list.length);
+	console.log(filtered_list);
 	let needsChanging = $("#" + pokeID + " .set-selector");
-	let output = $('.custom-set-export-textbox');
+	let output1 = $('#custom-set-export-textbox-1');
+	let output2 = $('#custom-set-export-textbox-2');
 	let mainResult = $('.left-result');
 	let currentValue = needsChanging.select2('data');
-	console.log(currentValue);
-	output.text('');
+		output1.text('');
+	output2.text('');
 	filtered_list.forEach((set) => {
 		needsChanging.val((set.nickname ? set.pokemon + " (" + set.nickname + ")" : set.id));
 		needsChanging.trigger('change');
 		performCalculations();
 		damageResults[0].forEach((ele) =>
-		    {
-			if(ele.damage)
-			    output.text(output.text() + ele.fullDesc(notation,false) + "\n\n")
-		    });
+		  {
+				if(ele.damage)
+			    output1.text(output1.text() + ele.fullDesc(notation,false) + "\n\n")
+		  });
+		damageResults[1].forEach((ele) =>
+		  {
+				if(ele.damage)
+			    output2.text(output2.text() + ele.fullDesc(notation,false) + "\n\n")
+		  });
 	});
 	needsChanging.val(currentValue.text);
 	needsChanging.trigger('change');
